@@ -1,0 +1,972 @@
+{
+    "paths": {
+        "/core/logging/log_file_groups": {
+            "get": {
+                "tags": [
+                    "core",
+                    "logging",
+                    "potentially-new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only return log files modified after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "starting_date",
+                        "required": false,
+                        "type": "string",
+                        "format": "date",
+                        "description": "Only return log files from this starting date"
+                    }
+                ],
+                "description": "List of all available log files grouped by date. Response returns log file detail wrapped into log_file_uuid and grouped by date.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LogFileGroupsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/logging/raw": {
+            "get": {
+                "tags": [
+                    "core",
+                    "logging"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "dates",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by date.",
+                        "items": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "log_file_uuids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by uuid.",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "screen_identifiers",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by screen_identifier.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "dnqualifiers",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by dnqualifiers.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only return log files modified after this timestamp"
+                    }
+                ],
+                "description": "Request specific log files by uuid, date or screen_identifier. If the log file is not available yet, Screenwriter should schedule a collection as soon as it is possible. Having the possibility to filter by screen_identifier and/or date sort of make /logging/log_file_groups obsolete.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LogFileRawResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/playlist/playlist": {
+            "get": {
+                "tags": [
+                    "core",
+                    "playlist"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "playlist_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of playlist uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "request_data_items",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Streamline returned result for wanted details. If [] return everything.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "flatten",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "in": "query",
+                        "name": "device_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of device uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "validate",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns playlists modified after this timestamp"
+                    }
+                ],
+                "description": "List of all available playlists. Wrapped under device_uuid layer. If the change of structure breaks too many things in Screenwriter UI go with new endpoint. Filter by modified_after. Make sure to always return a reliable last_modified. If screen playlist, return an `has_spl` flag to make us know is it possible to request the spl (see /playlist/screen_playlist).",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaylistsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/playlist/screen_playlist": {
+            "get": {
+                "tags": [
+                    "core",
+                    "playlist",
+                    "new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns playlists modified after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "playlist_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of playlist uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "device_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of device uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "List SPLs. These are not currently stored on the LMS so it is up to you guys to decide how to do it, but we need a way to request playlist in the original format provided by the screen servers. A flag on playlist/playlist endpoint can let us know if the spl is available and we can use this endpoint to collect it. Returning it together with other playlist info (so from /playlist/playlist) may be expensive, but again implementation is up to you. Depending on the implementation an extra POST `/playlist/screen_playlist/fetch` may be required to schedule fetching from screen servers.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SPLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/pack/last_modified": {
+            "get": {
+                "tags": [
+                    "core",
+                    "pack"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns last_modified for packs modified after this timestamp"
+                    }
+                ],
+                "description": "Get last_modified for all available packs. Filter by modified_after",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PackLastModifiedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/pack/packs": {
+            "get": {
+                "tags": [
+                    "core",
+                    "pack"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "datatable_query",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "in": "query",
+                        "name": "requested_data_items",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Return these attributes only.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pack_uuids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of pack uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Get packs details. Filter by pack_uuids. Current behaviour requires querying the info twice to get last_modified and title_external_ids of the pack. We would like to have them returned in any case.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PacksResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/configuration/complex_data": {
+            "get": {
+                "tags": [
+                    "core",
+                    "configuration",
+                    "new"
+                ],
+                "description": "Get non-volatile complex data. Currently componing an 'flm' data message from the following endpoints. Some of them like monitoring/info contain volatile info such as disk usage we would like to pull more often independently from the other complex data. screenwriter_data_endpoints = [ '/core/configuration/get_addresses', '/core/configuration/get_contacts', '/core/complex_infos', '/get_license', '/core/configuration/device', '/core/configuration/screen', '/core/monitoring/info', ] We need two different endpoints, one that combines more static data from the above routes and one that provides only volatile data we can pull more often.",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/configuration/monitoring_data": {
+            "get": {
+                "tags": [
+                    "core",
+                    "configuration",
+                    "new"
+                ],
+                "description": "Get volatile complex data. Currently componing an 'flm' data message from the following endpoints. Some of them like monitoring/info contain volatile info such as disk usage we would like to pull more often independently from the other complex data. screenwriter_data_endpoints = [ '/core/configuration/get_addresses', '/core/configuration/get_contacts', '/core/complex_infos', '/get_license', '/core/configuration/device', '/core/configuration/screen', '/core/monitoring/info', ] We need two different endpoints, one that combines more static data from the above routes and one that provides only volatile data we can pull more often.",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/content/last_modified": {
+            "get": {
+                "tags": [
+                    "core",
+                    "content",
+                    "new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns last_modified for content \"modified\" after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of content uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Get last_modified for all available contents. Filtering by modified_after should only return content added from the specified timestamp.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ContentLastModifiedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/content/validation": {
+            "get": {
+                "tags": [
+                    "core",
+                    "content",
+                    "new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "content_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of content uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Get validation status for all available contents. Validation info is wrapped under device_uuids layer. Filter by content_ids to restrict the response to the only cpl we care about.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ContentValidationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/content/cpl_xml": {
+            "get": {
+                "tags": [
+                    "core",
+                    "content",
+                    "new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "content_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of content uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Return cpl.xml for every known cpl. Filter by content_ids to restrict the response to the only cpl we care about.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CPLXMLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/core/scheduling/last_modified": {
+            "get": {
+                "tags": [
+                    "core",
+                    "schedule"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns schedule modified after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "delete",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ],
+                "description": "List last_modified for all available schedules. Add filtering for modified_after to return only schedules with last_modified > modified_after.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ScheduleLastModifiedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "info": {
+        "title": "Screenwriter API requirements",
+        "version": "1.0.0"
+    },
+    "swagger": "2.0",
+    "definitions": {
+        "LogFileDetails": {
+            "type": "object",
+            "properties": {
+                "last_modified": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Timestamp of when log was last modified"
+                },
+                "screen_identifier": {
+                    "type": "string",
+                    "description": "Screen identifier"
+                },
+                "dnqualifier": {
+                    "type": "string",
+                    "description": "Dnqualifier of the screen server the log file comes from"
+                }
+            }
+        },
+        "LogFileGroupsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/definitions/LogFileDetails"
+                        }
+                    }
+                }
+            }
+        },
+        "HttpError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "HTTP code of the response"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Description of the error happened during the response"
+                }
+            }
+        },
+        "LogFileRawDetails": {
+            "type": "object",
+            "properties": {
+                "error_message": {
+                    "type": "string",
+                    "description": "Error occured in collection or parsing phase."
+                },
+                "serial": {
+                    "type": "string",
+                    "description": "Screen server serial number."
+                },
+                "device_ip_address": {
+                    "type": "string",
+                    "description": "Screen server IP address."
+                },
+                "parse_attempted": {
+                    "type": "boolean"
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Primary identifier of a log file."
+                },
+                "created": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "repull_marked": {
+                    "type": "boolean"
+                },
+                "pull_attempted": {
+                    "type": "boolean"
+                },
+                "no_playouts": {
+                    "type": "boolean"
+                },
+                "last_modified": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "signed": {
+                    "type": "boolean"
+                },
+                "screen_identifier": {
+                    "type": "string",
+                    "description": "Screen identifier e.g. S01"
+                },
+                "dnqualifier": {
+                    "type": "string",
+                    "description": "Dnqualifier of the screen server."
+                },
+                "absolute_file_path": {
+                    "type": "string",
+                    "description": "Absolute file path"
+                },
+                "parsed": {
+                    "type": "boolean"
+                },
+                "unencrypted": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string",
+                    "description": "Log file date."
+                },
+                "pulled": {
+                    "type": "boolean"
+                },
+                "xml": {
+                    "type": "string",
+                    "description": "Full .xml file as retrieved from server."
+                }
+            }
+        },
+        "LogFileRawResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/LogFileRawDetails"
+                    }
+                }
+            }
+        },
+        "Playlist": {
+            "type": "object",
+            "properties": {
+                "is_template": {
+                    "type": "boolean"
+                },
+                "duration_in_seconds": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "clean": {
+                    "type": "boolean"
+                },
+                "last_modified": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Timestamp of when playlst was last modified"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "preshow_duration": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "playlist": {
+                    "type": "object"
+                },
+                "is_hfr": {
+                    "type": "boolean"
+                },
+                "content_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_4k": {
+                    "type": "boolean"
+                },
+                "is_3d": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "PlaylistsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/definitions/Playlist"
+                        }
+                    }
+                }
+            }
+        },
+        "SPL": {
+            "type": "object",
+            "properties": {
+                "spl_data": {
+                    "type": "string"
+                },
+                "device_uuid": {
+                    "type": "string",
+                    "format": "uuid"
+                }
+            }
+        },
+        "SPLResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/SPL"
+                    }
+                }
+            }
+        },
+        "PackLastModifiedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Last modified of the pack"
+                    }
+                }
+            }
+        },
+        "Pack": {
+            "type": "object",
+            "properties": {
+                "placeholder_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-nullable": true,
+                    "description": "Main identifier of a placeholder resource"
+                },
+                "clips": {
+                    "type": "array",
+                    "description": "List of clips present in the pack",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "x-nullable": true,
+                    "description": "Pack priority"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the pack"
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Generic identifier of a pack resource"
+                },
+                "placeholder_name": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Name of a placeholder resource"
+                },
+                "title_name": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Name of the title"
+                },
+                "last_modified": {
+                    "type": "number",
+                    "format": "float",
+                    "x-nullable": true,
+                    "description": "Last time the pack got modified, only used when syncing packs from site, not on send"
+                },
+                "title_external_ids": {
+                    "type": "array",
+                    "x-nullable": true,
+                    "description": "List of external IDs the title is matched to",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "date_from": {
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true,
+                    "description": "Date since the pack is valid"
+                },
+                "screen_identifiers": {
+                    "type": "array",
+                    "x-nullable": true,
+                    "description": "List of screen identifiers",
+                    "items": {
+                        "type": "string",
+                        "description": "Main identifier of a screen"
+                    }
+                },
+                "title_map_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-nullable": true,
+                    "description": "Main identifier of a title map"
+                },
+                "date_to": {
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true,
+                    "description": "Final date for the pack to be valid"
+                },
+                "time_from": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Time since the pack is valid"
+                },
+                "title_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-nullable": true,
+                    "description": "Main identifier of a title"
+                },
+                "time_to": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Final time for the pack to be valid"
+                },
+                "external_show_attribute_maps": {
+                    "type": "array",
+                    "x-nullable": true,
+                    "description": "List of show attributes",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "issuer": {
+                    "type": "string",
+                    "description": "Pack issuer"
+                }
+            },
+            "required": [
+                "clips",
+                "issuer",
+                "name",
+                "uuid"
+            ]
+        },
+        "PacksResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/Pack"
+                    }
+                }
+            }
+        },
+        "ContentLastModifiedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Last modified of the content"
+                    }
+                }
+            }
+        },
+        "ContentValidationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "description": "Validation status and other info"
+                        }
+                    }
+                }
+            }
+        },
+        "CPLXMLResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string",
+                        "description": "CPL XML data"
+                    }
+                }
+            }
+        },
+        "ScheduleLastModifiedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float",
+                        "description": "Schedule last_modified field"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  flask:
+    image: serv:develop
+    command: make dev
+    build:
+      dockerfile: config/Dockerfile
+      context: .
+    environment:
+      - FLASK_APP=serv.entrypoint
+      - PYTHONPATH=/var/app
+    volumes:
+      - ./:/var/app
+      - /var/app/serv/static

@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+apispec = ">=1,<2"
+apispec-webframeworks = ">=0.4.0,<1"
+gunicorn = "<20,>=19.7"
+marshmallow = ">=3.0.0.rc1,<4"
+Flask = "<2,>=1"
+flask-shell-ipython = "*"
+
+[dev-packages]
+factory_boy = "<3,>=2.9.2"
+ipdb = "*"
+pytest = "<4.1,>=4.0"
+pytest-cov = "<3,>=2.5"
+"flake8" = "*"
+
+[requires]
+python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

@@ -1,0 +1,935 @@
+---
+openapi: "3.0.2"
+info:
+  title: "Screenwriter/Producer API"
+  description: "These are the Screenwriter API calls used by Producer"
+  version: "1.0"
+  contact:
+    name: "Arts Alliance Media"
+    url: "https://www.artsalliancemedia.com/support/contact"
+    email: "support@artsalliancemedia.com"
+
+components:
+  schemas:
+    UUID:
+      description: "Unique identifier, globally unique for each object"
+      type: string
+      format: uuid
+      pattern: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+    Timestamp:
+      description: "Timestamp containing the number of seconds since the epoch"
+      type: number
+    Date:
+      description: "A date string"
+      type: string
+      format: date
+    Time:
+      description: "A time string"
+      type: string
+      pattern: /^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](.[0-9]+)?$/
+    Frames:
+      description: "A positive integer number of frames (E.g. for a duration)"
+      type: integer
+      minimum: 0
+    Seconds:
+      description: "A positive number of seconds (E.g. for a duration)"
+      type: number
+      minimum: 0
+    EditRate:
+      description: "Edit rate in frames"
+      type: string
+      pattern: /^\d+\s+\d+$/
+    ExternalId:
+      description: "A reference to a 3rd-party identifier"
+      type: object
+      required:
+        - source
+        - external_id
+      properties:
+        source:
+          type: string
+        external_id:
+          type: string
+    ExternalShowAttribute:
+      description: "A reference to a 3rd-party show attribute"
+      allOf:
+        - $ref: "#/components/schemas/ExternalId"
+        - properties:
+            show_attribute_uuid:
+              $ref: "#/components/schemas/UUID"
+          required:
+            - show_attribute_uuid
+    Rating:
+      description: "A content rating for a particular territory"
+      type: object
+      required:
+        - territory
+        - rating
+      properties:
+        territory:
+          type: string
+        rating:
+          type: string
+    Clip:
+      description: "A reference to a piece of content for playback"
+      type: object
+      required:
+        - type
+        - text
+        - edit_rate
+        - duration_in_frames
+        - duration_in_seconds
+        - automation
+      properties:
+        type:
+          type: string
+        text:
+          type: string
+          nullable: true
+        uuid:
+          $ref: "#/components/schemas/UUID"
+        edit_rate:
+          $ref: "#/components/schemas/EditRate"
+        duration_in_frames:
+          $ref: "#/components/schemas/Frames"
+        duration_in_seconds:
+          $ref: "#/components/schemas/Seconds"
+        automation:
+          type: array
+          items:
+            $ref: "#/components/schemas/Automation"
+        cpl_id:
+          $ref: "#/components/schemas/UUID"
+        playback_mode:
+          type: string
+          enum:
+            - "2D"
+            - "3D"
+    Automation:
+      description: "A reference to a device automation (E.g. in a playlist)"
+      type: object
+      required:
+        - type
+        - name
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        type_specific:
+          type: object
+          properties:
+            action:
+              type: string
+            offset_in_seconds:
+              $ref: "#/components/schemas/Seconds"
+            offset_in_frames:
+              $ref: "#/components/schemas/Frames"
+            offset_from:
+              type: string
+              enum:
+                - "start"
+                - "end"
+            restart_in_seconds:
+              $ref: "#/components/schemas/Seconds"
+            rewind_in_seconds:
+              $ref: "#/components/schemas/Seconds"
+            duration_in_seconds:
+              $ref: "#/components/schemas/Seconds"
+            spl_title:
+              type: string
+            spl_uuid:
+              $ref: "#/components/schemas/UUID"
+            spl_is_template:
+              type: boolean
+            start_automation:
+              type: string
+            end_automation:
+              type: string
+    Title:
+      description: "Information about a title"
+      type: object
+      required:
+        - name
+        - cpls
+        - external_titles
+      properties:
+        uuid:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        cpls:
+          type: array
+          items:
+            $ref: "#/components/schemas/UUID"
+        external_titles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExternalId"
+        last_modified:
+          $ref: "#/components/schemas/Timestamp"
+        year:
+          type: integer
+        credits_offset:
+          $ref: "#/components/schemas/Seconds"
+        ratings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rating"
+    Pack:
+      description: "A content pack"
+      type: object
+      properties:
+        uuid:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        title_uuid:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+          nullable: true
+        title_name:
+          type: string
+          nullable: true
+        priority:
+          type: integer
+          nullable: true
+        print_no:
+          type: integer
+          nullable: true
+        date_from:
+          allOf:
+            - $ref: "#/components/schemas/Date"
+          nullable: true
+        time_from:
+          allOf:
+            - $ref: "#/components/schemas/Time"
+          nullable: true
+        date_to:
+          allOf:
+            - $ref: "#/components/schemas/Date"
+          nullable: true
+        time_to:
+          allOf:
+            - $ref: "#/components/schemas/Time"
+          nullable: true
+        external_show_attribute_maps:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExternalShowAttribute"
+        placeholder_uuid:
+          $ref: "#/components/schemas/UUID"
+        placeholder_name:
+          type: string
+          nullable: true
+        screens:
+          type: array
+          items:
+            $ref: "#/components/schemas/UUID"
+        screen_external_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExternalId"
+        ratings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rating"
+        clips:
+          type: array
+          items:
+            $ref: "#/components/schemas/Clip"
+        issuer:
+          type: string
+    Schedule:
+      description: "A scheduled show"
+      type: object
+      required:
+        - uuid
+        - display_name
+        - screen_uuid
+        - duration
+        - start_timestamp
+        - start_time
+        - start_date
+        - end_timestamp
+        - end_time
+        - end_date
+        - type
+        - created
+        - last_modified
+        - source_playlist_uuid
+        - content_issue
+        - content_warning
+        - playlist_issue
+        - kdm_issue
+        - validation_issue
+        - templating_issues
+        - deleted
+        - published_show_time
+        - clashes
+      properties:
+        uuid:
+          $ref: "#/components/schemas/UUID"
+        display_name:
+          type: string
+          nullable: true
+        screen_uuid:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+          nullable: true
+        duration:
+          $ref: "#/components/schemas/Seconds"
+        start_timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        start_time:
+          $ref: "#/components/schemas/Time"
+        start_date:
+          $ref: "#/components/schemas/Date"
+        end_timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        end_time:
+          $ref: "#/components/schemas/Time"
+        end_date:
+          $ref: "#/components/schemas/Date"
+        type:
+          type: string
+        created:
+          $ref: "#/components/schemas/Timestamp"
+        last_modified:
+          $ref: "#/components/schemas/Timestamp"
+        source_playlist_uuid:
+          $ref: "#/components/schemas/UUID"
+        content_issue:
+          type: boolean
+        content_warning:
+          type: boolean
+        playlist_issue:
+          type: boolean
+        kdm_issue:
+          type: boolean
+        validation_issue:
+          type: boolean
+        templating_issues:
+          type: array
+          items:
+            type: object
+            required:
+              - level
+              - placeholder_uuid
+              - placeholder_type
+              - uuid
+              - text
+              - message
+            properties:
+              level:
+                type: string
+                enum:
+                  - "ERROR"
+                  - "WARNING"
+                  - "INFO"
+              placeholder_uuid:
+                allOf:
+                  - $ref: "#/components/schemas/UUID"
+                nullable: true
+              placeholder_type:
+                type: string
+                enum:
+                  - "intermission"
+                  - "template"
+                  - "macro_pack"
+                nullable: true
+              uuid:
+                oneOf:
+                  - $ref: "#/components/schemas/UUID"
+                  - type: string
+                    enum:
+                      - ""
+                nullable: true
+              removed_content:
+                type: object
+                required:
+                  - reason
+                  - index_in_pack
+                properties:
+                  reason:
+                    $ref: "#/components/schemas/DropReason"
+                  index_in_pack:
+                    type: integer
+                    minimum: 0
+              text:
+                type: string
+              message:
+                type: string
+              inserted_ids:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/UUID"
+                  - type: string
+                    enum:
+                      - ""
+                nullable: true
+        deleted:
+          type: boolean
+        published_show_time:
+          $ref: "#/components/schemas/Timestamp"
+        clashes:
+          oneOf:
+            - type: array
+            - type: object
+        device_information:
+          type: object
+          required:
+            - device_uuid
+            - device_schedule_id
+            - device_playlist_uuid
+            - device_playlist_duration
+          properties:
+            device_uuid:
+              allOf:
+                - $ref: "#/components/schemas/UUID"
+              nullable: true
+            device_schedule_id:
+              type: string
+              nullable: true
+            device_playlist_uuid:
+              allOf:
+                - $ref: "#/components/schemas/UUID"
+              nullable: true
+            device_playlist_duration:
+              allOf:
+                - $ref: "#/components/schemas/Seconds"
+              nullable: true
+        template_information:
+          type: object
+          required:
+            - source_playlist_uuid
+            - print_no
+            - is_template
+          properties:
+            source_playlist_uuid:
+              allOf:
+                - $ref: "#/components/schemas/UUID"
+              nullable: true
+            print_no:
+              type: integer
+              nullable: true
+            is_template:
+              type: boolean
+        pos_information:
+          type: object
+          required:
+            - show_attributes
+          properties:
+            pos_id:
+              allOf:
+                - $ref: "#/components/schemas/UUID"
+              nullable: true
+            pos_duration:
+              allOf:
+                - $ref: "#/components/schemas/Seconds"
+              nullable: true
+            pos_unassigned:
+              type: boolean
+            show_attributes:
+              type: object
+              additionalProperties:
+                type: string
+            seats_sold:
+              type: integer
+              nullable: true
+            seats_available:
+              type: integer
+              nullable: true
+            feature_title:
+              type: string
+        placeholder_information:
+          type: object
+          required:
+            - placeholder_type
+            - placeholder_duration
+          properties:
+            placeholder_type:
+              type: string
+            placeholder_duration:
+              $ref: "#/components/schemas/Seconds"
+        preshow_duration:
+          $ref: "#/components/schemas/Seconds"
+        pack_information:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - uuid
+              - placeholder_name
+              - placeholder_uuid
+              - clips
+            properties:
+              name:
+                type: string
+              uuid:
+                $ref: "#/components/schemas/UUID"
+              placeholder_name:
+                type: string
+              placeholder_uuid:
+                $ref: "#/components/schemas/UUID"
+              clips:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - ContentTitleText
+                    - UUID
+                    - Placed
+                    - DropReason
+                  properties:
+                    ContentTitleText:
+                      type: string
+                    UUID:
+                      $ref: "#/components/schemas/UUID"
+                    Placed:
+                      enum:
+                        - "true"
+                        - "false"
+                    DropReason:
+                      $ref: "#/components/schemas/DropReason"
+    PosPlaylistMapping:
+      description: "A mapping from a POS item to a playlist"
+      type: object
+      required:
+        - state
+      properties:
+        placeholder_type:
+          type: string
+        placeholder_id:
+          $ref: "#/components/schemas/UUID"
+        state:
+          type: string
+    ScheduleInformationType:
+      description: "A keyword specifying what schedule information is being requested"
+      type: string
+      enum:
+        - "device_information"
+        - "template_information"
+        - "placeholder_information"
+        - "pos_information"
+    DropReason:
+      description: "A reason for dropping content from a pack"
+      type: string
+      enum:
+        - "missing"
+        - "trimmed"
+
+  responses:
+    UnexpectedError:
+      description: "An unexpected error occurred."
+      content:
+        text/html:
+          schema:
+            type: string
+
+paths:
+  "/core/logging/log_file_groups":
+    get:
+      summary: "Fetch information about which log files were modified after what time."
+      description: "Returns a list of groups of log files which were last modified at the same time."
+      parameters:
+        - name: modified_after
+          in: query
+          required: false
+          description: "Only return log files modified after this date"
+          schema:
+            type: integer
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messages
+                  - data
+                properties:
+                  messages:
+                    type: array
+                    items: {}
+                    maxItems: 0
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - last_modified
+                        - uuids
+                      properties:
+                        last_modified:
+                          $ref: "#/components/schemas/Timestamp"
+                        uuids:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/UUID"
+
+  "/core/logging/raw":
+    get:
+      summary: "Fetch information about specific log files."
+      description: "Returns information about each log file including the raw XML from the device."
+      parameters:
+        - name: log_file_uuids
+          in: query
+          required: false
+          description: "A list of UUIDs for the log files to be fetched"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UUID"
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messages
+                  - data
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - type
+                        - log_file_uuid
+                        - message
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - "error"
+                        log_file_uuid:
+                          $ref: "#/components/schemas/UUID"
+                        message:
+                          type: string
+                  data:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      required:
+                        - uuid
+                        - created
+                        - last_modified
+                        - date
+                        - screen_identifier
+                        - dnqualifier
+                        - serial
+                        - device_ip_address
+                        - unencrypted
+                        - pull_attempted
+                        - pulled
+                        - parse_attempted
+                        - parsed
+                        - repull_marked
+                        - absolute_file_path
+                        - error_message
+                        - no_playouts
+                        - signed
+                        - xml
+                      properties:
+                        uuid:
+                          $ref: "#/components/schemas/UUID"
+                        created:
+                          $ref: "#/components/schemas/Timestamp"
+                        dnqualifier:
+                          type: string
+                          nullable: true
+                        error_message:
+                          type: string
+                          nullable: true
+                        signed:
+                          type: boolean
+                          nullable: true
+                        screen_identifier:
+                          type: string
+                        absolute_file_path:
+                          type: string
+                          nullable: true
+                        unencrypted:
+                          type: boolean
+                        device_ip_address:
+                          type: string
+                        last_modified:
+                          $ref: "#/components/schemas/Timestamp"
+                        repull_marked:
+                          type: boolean
+                        date:
+                          type: boolean
+                          format: date
+                        serial:
+                          type: string
+                          nullable: true
+                        parse_attempted:
+                          type: boolean
+                        pulled:
+                          type: boolean
+                        parsed:
+                          type: boolean
+                        pull_attempted:
+                          type: boolean
+                        no_playouts:
+                          type: boolean
+                          nullable: true
+                        xml:
+                          type: string
+                          nullable: true
+
+  "/core/pack/packs":
+    get:
+      summary: "Fetch information about specific packs."
+      description: "Returns information about each requested pack or all packs if none are requested."
+      parameters:
+        - name: pack_uuids
+          in: query
+          required: false
+          description: "A list of UUIDs for the packs to be fetched"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UUID"
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messages
+                  - data
+                properties:
+                  messages:
+                    type: array
+                    items: {}
+                    maxItems: 0
+                  data:
+                    type: object
+                    additionalProperties:
+                      $ref: "#/components/schemas/Pack"
+
+  "/core/title/save":
+    post:
+      summary: "Create or update a title."
+      description: "Update an existing title or create a new one using the supplied information."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  $ref: "#/components/schemas/Title"
+                from_producer:
+                  description: "Set to true if this pack is from Producer"
+                  type: boolean
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - messages
+                  - uuid
+                properties:
+                  data:
+                    type: object
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - type
+                        - message
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - "success"
+                        message:
+                          type: string
+                  uuid:
+                    $ref: "#/components/schemas/UUID"
+
+  "/core/pos/save_mappings":
+    get:
+      summary: "Update the mapping between POS items and playlists."
+      description: "Assign or unassign playlists to POS items."
+      parameters:
+        - name: pos_update_map
+          in: query
+          required: true
+          description: "A mapping from POS item UUIDs to playlist UUIDs"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/PosPlaylistMapping"
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - messages
+                properties:
+                  data:
+                    type: object
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - type
+                        - message
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - "success"
+                            - "error"
+                        message:
+                          type: string
+
+  "/core/scheduling/schedule":
+    get:
+      summary: "Fetch information about scheduled shows."
+      description: "Returns information about shows that are scheduled on devices."
+      parameters:
+        - name: start_time
+          in: query
+          required: false
+          description: "The start of a time range to filter results by"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date
+        - name: end_time
+          in: query
+          required: false
+          description: "The end of a time range to filter results by"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date
+        - name: device_uuids
+          in: query
+          required: false
+          description: "A list of device UUIDs to filter results by"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UUID"
+        - name: schedule_uuids
+          in: query
+          required: false
+          description: "A list of schedule UUIDs to filter results by"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UUID"
+        - name: full_validation
+          in: query
+          required: false
+          description: "Set to true to return detailed information about scheduling issues"
+          content:
+            application/json:
+              schema:
+                type: boolean
+        - name: information_requested
+          in: query
+          required: false
+          description: "A list of keywords specifying what information to return"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleInformationType"
+        - name: include_show_end
+          in: query
+          required: false
+          description: "Set to true to include shows where any part of the show is in the specified time range, not just the show start time"
+          content:
+            application/json:
+              schema:
+                type: boolean
+        - name: include_deleted
+          in: query
+          required: false
+          description: "Set to true to include deleted shows"
+          content:
+            application/json:
+              schema:
+                type: boolean
+      responses:
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messages
+                  - data
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - type
+                        - device_id
+                        - message
+                      properties:
+                        type:
+                          type: string
+                        device_id:
+                          $ref: "#/components/schemas/UUID"
+                        message:
+                          type: string
+                        data:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/Schedule"
