@@ -14,5 +14,6 @@ class ScheduleLastModifiedFilterSchema(Schema):
 class ScheduleLastModifiedResponseSchema(Schema):
     data = fields.Dict(
         keys=fields.UUID(descrption='Primary id of Schedule'),
-        values=fields.Float(description='Schedule last_modified field')
+        values=fields.Float(description='Schedule last_modified field'),
+        description='Dictionary where keys are schedule UUIDs and values are last_modified integers.'  # noqa
     )

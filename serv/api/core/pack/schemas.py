@@ -11,7 +11,8 @@ class PackLastModifiedFilterSchema(Schema):
 class PackLastModifiedResponseSchema(Schema):
     data = fields.Dict(
         keys=fields.UUID(description='Pack UUID'),
-        values=fields.Integer(description='Last modified of the pack')
+        values=fields.Integer(description='Last modified of the pack'),
+        description='Dictionary where keys are pack UUIDs and values are last_modified integers.'
     )
 
 
@@ -94,5 +95,6 @@ class PackSchema(Schema):
 class PacksResponseSchema(Schema):
     data = fields.Dict(
         keys=fields.UUID(description='Primary identifier of a Pack.'),
-        values=fields.Nested(PackSchema)
+        values=fields.Nested(PackSchema),
+        description='Dictionary where keys are pack UUIDs and values are pack details.'  # noqa
     )

@@ -69,6 +69,37 @@ def get_validation():
     pass
 
 
+@content.route("/validation/last_modified")
+def get_validation_last_modified():
+    """
+    Get validation last_modified for all available contents. Validation
+    last_modified is wrapped under device_uuids layer. Filter by content_ids to
+    restrict the response to the only cpl we care about.
+
+    ---
+    get:
+      tags:
+        - core
+        - content
+        - new
+      parameters:
+        - in: query
+          schema: ContentValidationLastModifiedFilterSchema
+          required: false
+      description: Get validation last_modified for all available contents.
+          Validation last_modified is wrapped under device_uuids layer. Filter
+          by content_ids to restrict the response to the only cpl we care about.
+      responses:
+        200:
+          description: Success
+          schema: ContentValidationLastModifiedResponseSchema
+        400:
+          description: Invalid request data provided
+          schema: HttpErrorSchema
+    """
+    pass
+
+
 @content.route("/cpl_xml")
 def get_cpl_xml():
     """

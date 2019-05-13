@@ -44,8 +44,10 @@ class PlaylistsResponseSchema(Schema):
         keys=fields.UUID(description='Device uuid wrap'),
         values=fields.Dict(
             keys=fields.UUID(description='Playlist uuid'),
-            values=fields.Nested(PlaylistSchema)
-        )
+            values=fields.Nested(PlaylistSchema),
+            description='Dictionary where keys are playlist UUIDs and values are playlist details.'  # noqa
+        ),
+        description='Dictionary where keys are device UUIDs and values are dictionaries.'  # noqa
     )
 
 

@@ -40,6 +40,7 @@ def init_spec(app):
             'configuration.get_monitoring_data',
             'content.get_last_modified',
             'content.get_validation',
+            'content.get_validation_last_modified',
             'content.get_cpl_xml',
             'scheduling.get_last_modified',
         ]

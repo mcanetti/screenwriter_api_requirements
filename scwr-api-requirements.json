@@ -10,19 +10,19 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "modified_after",
-                        "required": false,
-                        "type": "integer",
-                        "format": "int32",
-                        "description": "Only return log files modified after this timestamp"
-                    },
-                    {
-                        "in": "query",
                         "name": "starting_date",
                         "required": false,
                         "type": "string",
                         "format": "date",
                         "description": "Only return log files from this starting date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only return log files modified after this timestamp"
                     }
                 ],
                 "description": "List of all available log files grouped by date. Response returns log file detail wrapped into log_file_uuid and grouped by date.",
@@ -51,6 +51,17 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "screen_identifiers",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by screen_identifier.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
                         "name": "dates",
                         "required": false,
                         "collectionFormat": "multi",
@@ -59,29 +70,6 @@
                         "items": {
                             "type": "string",
                             "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "log_file_uuids",
-                        "required": false,
-                        "collectionFormat": "multi",
-                        "type": "array",
-                        "description": "Filter logs by uuid.",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "screen_identifiers",
-                        "required": false,
-                        "collectionFormat": "multi",
-                        "type": "array",
-                        "description": "Filter logs by screen_identifier.",
-                        "items": {
-                            "type": "string"
                         }
                     },
                     {
@@ -102,6 +90,18 @@
                         "type": "integer",
                         "format": "int32",
                         "description": "Only return log files modified after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "log_file_uuids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Filter logs by uuid.",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
                     }
                 ],
                 "description": "Request specific log files by uuid, date or screen_identifier. If the log file is not available yet, Screenwriter should schedule a collection as soon as it is possible. Having the possibility to filter by screen_identifier and/or date sort of make /logging/log_file_groups obsolete.",
@@ -130,35 +130,6 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "playlist_ids",
-                        "required": false,
-                        "collectionFormat": "multi",
-                        "type": "array",
-                        "description": "List of playlist uuids",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "request_data_items",
-                        "required": false,
-                        "collectionFormat": "multi",
-                        "type": "array",
-                        "description": "Streamline returned result for wanted details. If [] return everything.",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "flatten",
-                        "required": false,
-                        "type": "boolean"
-                    },
-                    {
-                        "in": "query",
                         "name": "device_ids",
                         "required": false,
                         "collectionFormat": "multi",
@@ -177,11 +148,40 @@
                     },
                     {
                         "in": "query",
+                        "name": "flatten",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "in": "query",
+                        "name": "request_data_items",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "Streamline returned result for wanted details. If [] return everything.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
                         "name": "modified_after",
                         "required": false,
                         "type": "integer",
                         "format": "int32",
                         "description": "Only returns playlists modified after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "playlist_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of playlist uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
                     }
                 ],
                 "description": "List of all available playlists. Wrapped under device_uuid layer. If the change of structure breaks too many things in Screenwriter UI go with new endpoint. Filter by modified_after. Make sure to always return a reliable last_modified. If screen playlist, return an `has_spl` flag to make us know is it possible to request the spl (see /playlist/screen_playlist).",
@@ -219,11 +219,11 @@
                     },
                     {
                         "in": "query",
-                        "name": "playlist_ids",
+                        "name": "device_ids",
                         "required": false,
                         "collectionFormat": "multi",
                         "type": "array",
-                        "description": "List of playlist uuids",
+                        "description": "List of device uuids",
                         "items": {
                             "type": "string",
                             "format": "uuid"
@@ -231,11 +231,11 @@
                     },
                     {
                         "in": "query",
-                        "name": "device_ids",
+                        "name": "playlist_ids",
                         "required": false,
                         "collectionFormat": "multi",
                         "type": "array",
-                        "description": "List of device uuids",
+                        "description": "List of playlist uuids",
                         "items": {
                             "type": "string",
                             "format": "uuid"
@@ -472,6 +472,52 @@
                 }
             }
         },
+        "/core/content/validation/last_modified": {
+            "get": {
+                "tags": [
+                    "core",
+                    "content",
+                    "new"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "modified_after",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Only returns last_modified for content validation \"modified\" after this timestamp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content_ids",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "description": "List of content uuids",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Get validation last_modified for all available contents. Validation last_modified is wrapped under device_uuids layer. Filter by content_ids to restrict the response to the only cpl we care about.",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ContentValidationLastModifiedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data provided",
+                        "schema": {
+                            "$ref": "#/definitions/HttpError"
+                        }
+                    }
+                }
+            }
+        },
         "/core/content/cpl_xml": {
             "get": {
                 "tags": [
@@ -559,6 +605,10 @@
         "LogFileDetails": {
             "type": "object",
             "properties": {
+                "dnqualifier": {
+                    "type": "string",
+                    "description": "Dnqualifier of the screen server the log file comes from"
+                },
                 "last_modified": {
                     "type": "integer",
                     "format": "int32",
@@ -567,10 +617,6 @@
                 "screen_identifier": {
                     "type": "string",
                     "description": "Screen identifier"
-                },
-                "dnqualifier": {
-                    "type": "string",
-                    "description": "Dnqualifier of the screen server the log file comes from"
                 }
             }
         },
@@ -579,8 +625,10 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are Dates and values are dictionaries.",
                     "additionalProperties": {
                         "type": "object",
+                        "description": "Dictionary where keys are log file UUIDs and values are partial log file details.",
                         "additionalProperties": {
                             "$ref": "#/definitions/LogFileDetails"
                         }
@@ -613,34 +661,13 @@
                     "type": "string",
                     "description": "Screen server serial number."
                 },
-                "device_ip_address": {
-                    "type": "string",
-                    "description": "Screen server IP address."
-                },
-                "parse_attempted": {
-                    "type": "boolean"
-                },
-                "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Primary identifier of a log file."
-                },
                 "created": {
                     "type": "integer",
                     "format": "int32"
                 },
-                "repull_marked": {
-                    "type": "boolean"
-                },
-                "pull_attempted": {
-                    "type": "boolean"
-                },
-                "no_playouts": {
-                    "type": "boolean"
-                },
-                "last_modified": {
-                    "type": "integer",
-                    "format": "int32"
+                "date": {
+                    "type": "string",
+                    "description": "Log file date."
                 },
                 "signed": {
                     "type": "boolean"
@@ -649,9 +676,29 @@
                     "type": "string",
                     "description": "Screen identifier e.g. S01"
                 },
-                "dnqualifier": {
+                "device_ip_address": {
                     "type": "string",
-                    "description": "Dnqualifier of the screen server."
+                    "description": "Screen server IP address."
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Primary identifier of a log file."
+                },
+                "unencrypted": {
+                    "type": "boolean"
+                },
+                "parse_attempted": {
+                    "type": "boolean"
+                },
+                "pulled": {
+                    "type": "boolean"
+                },
+                "pull_attempted": {
+                    "type": "boolean"
+                },
+                "repull_marked": {
+                    "type": "boolean"
                 },
                 "absolute_file_path": {
                     "type": "string",
@@ -660,19 +707,20 @@
                 "parsed": {
                     "type": "boolean"
                 },
-                "unencrypted": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string",
-                    "description": "Log file date."
-                },
-                "pulled": {
-                    "type": "boolean"
-                },
                 "xml": {
                     "type": "string",
                     "description": "Full .xml file as retrieved from server."
+                },
+                "dnqualifier": {
+                    "type": "string",
+                    "description": "Dnqualifier of the screen server."
+                },
+                "no_playouts": {
+                    "type": "boolean"
+                },
+                "last_modified": {
+                    "type": "integer",
+                    "format": "int32"
                 }
             }
         },
@@ -681,6 +729,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are log file UUIDs and values are log files details.",
                     "additionalProperties": {
                         "$ref": "#/definitions/LogFileRawDetails"
                     }
@@ -690,10 +739,10 @@
         "Playlist": {
             "type": "object",
             "properties": {
-                "is_template": {
+                "is_hfr": {
                     "type": "boolean"
                 },
-                "duration_in_seconds": {
+                "preshow_duration": {
                     "type": "integer",
                     "format": "int32"
                 },
@@ -701,25 +750,10 @@
                     "type": "string",
                     "format": "uuid"
                 },
-                "clean": {
+                "is_3d": {
                     "type": "boolean"
                 },
-                "last_modified": {
-                    "type": "integer",
-                    "format": "int32",
-                    "description": "Timestamp of when playlst was last modified"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "preshow_duration": {
-                    "type": "integer",
-                    "format": "int32"
-                },
-                "playlist": {
-                    "type": "object"
-                },
-                "is_hfr": {
+                "is_4k": {
                     "type": "boolean"
                 },
                 "content_ids": {
@@ -728,11 +762,26 @@
                         "type": "string"
                     }
                 },
-                "is_4k": {
+                "playlist": {
+                    "type": "object"
+                },
+                "duration_in_seconds": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "clean": {
                     "type": "boolean"
                 },
-                "is_3d": {
+                "is_template": {
                     "type": "boolean"
+                },
+                "last_modified": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Timestamp of when playlst was last modified"
                 }
             }
         },
@@ -741,8 +790,10 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are device UUIDs and values are dictionaries.",
                     "additionalProperties": {
                         "type": "object",
+                        "description": "Dictionary where keys are playlist UUIDs and values are playlist details.",
                         "additionalProperties": {
                             "$ref": "#/definitions/Playlist"
                         }
@@ -778,6 +829,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are pack UUIDs and values are last_modified integers.",
                     "additionalProperties": {
                         "type": "integer",
                         "format": "int32",
@@ -789,64 +841,6 @@
         "Pack": {
             "type": "object",
             "properties": {
-                "placeholder_uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "x-nullable": true,
-                    "description": "Main identifier of a placeholder resource"
-                },
-                "clips": {
-                    "type": "array",
-                    "description": "List of clips present in the pack",
-                    "items": {
-                        "type": "object"
-                    }
-                },
-                "priority": {
-                    "type": "integer",
-                    "format": "int32",
-                    "x-nullable": true,
-                    "description": "Pack priority"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the pack"
-                },
-                "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Generic identifier of a pack resource"
-                },
-                "placeholder_name": {
-                    "type": "string",
-                    "x-nullable": true,
-                    "description": "Name of a placeholder resource"
-                },
-                "title_name": {
-                    "type": "string",
-                    "x-nullable": true,
-                    "description": "Name of the title"
-                },
-                "last_modified": {
-                    "type": "number",
-                    "format": "float",
-                    "x-nullable": true,
-                    "description": "Last time the pack got modified, only used when syncing packs from site, not on send"
-                },
-                "title_external_ids": {
-                    "type": "array",
-                    "x-nullable": true,
-                    "description": "List of external IDs the title is matched to",
-                    "items": {
-                        "type": "object"
-                    }
-                },
-                "date_from": {
-                    "type": "string",
-                    "format": "date",
-                    "x-nullable": true,
-                    "description": "Date since the pack is valid"
-                },
                 "screen_identifiers": {
                     "type": "array",
                     "x-nullable": true,
@@ -856,17 +850,12 @@
                         "description": "Main identifier of a screen"
                     }
                 },
-                "title_map_uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "x-nullable": true,
-                    "description": "Main identifier of a title map"
-                },
-                "date_to": {
-                    "type": "string",
-                    "format": "date",
-                    "x-nullable": true,
-                    "description": "Final date for the pack to be valid"
+                "clips": {
+                    "type": "array",
+                    "description": "List of clips present in the pack",
+                    "items": {
+                        "type": "object"
+                    }
                 },
                 "time_from": {
                     "type": "string",
@@ -879,10 +868,33 @@
                     "x-nullable": true,
                     "description": "Main identifier of a title"
                 },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Generic identifier of a pack resource"
+                },
+                "date_to": {
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true,
+                    "description": "Final date for the pack to be valid"
+                },
                 "time_to": {
                     "type": "string",
                     "x-nullable": true,
                     "description": "Final time for the pack to be valid"
+                },
+                "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "x-nullable": true,
+                    "description": "Pack priority"
+                },
+                "placeholder_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-nullable": true,
+                    "description": "Main identifier of a placeholder resource"
                 },
                 "external_show_attribute_maps": {
                     "type": "array",
@@ -892,9 +904,49 @@
                         "type": "object"
                     }
                 },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the pack"
+                },
+                "title_name": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Name of the title"
+                },
+                "placeholder_name": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "description": "Name of a placeholder resource"
+                },
+                "title_map_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-nullable": true,
+                    "description": "Main identifier of a title map"
+                },
+                "date_from": {
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true,
+                    "description": "Date since the pack is valid"
+                },
                 "issuer": {
                     "type": "string",
                     "description": "Pack issuer"
+                },
+                "title_external_ids": {
+                    "type": "array",
+                    "x-nullable": true,
+                    "description": "List of external IDs the title is matched to",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "last_modified": {
+                    "type": "number",
+                    "format": "float",
+                    "x-nullable": true,
+                    "description": "Last time the pack got modified, only used when syncing packs from site, not on send"
                 }
             },
             "required": [
@@ -909,6 +961,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are pack UUIDs and values are pack details.",
                     "additionalProperties": {
                         "$ref": "#/definitions/Pack"
                     }
@@ -920,6 +973,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are Content UUIDS and values are last_modified integers.",
                     "additionalProperties": {
                         "type": "integer",
                         "format": "int32",
@@ -933,11 +987,31 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are Content UUIDs and values are dictionaries.",
                     "additionalProperties": {
                         "type": "object",
+                        "description": "Dictionary where keys are device UUIDs and values are validation details.",
                         "additionalProperties": {
                             "type": "object",
                             "description": "Validation status and other info"
+                        }
+                    }
+                }
+            }
+        },
+        "ContentValidationLastModifiedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "description": "Dictionary where keys are Content UUIDs and values are dictionaries.",
+                    "additionalProperties": {
+                        "type": "object",
+                        "description": "Dictionary where keys are device UUIDs and values are validation last_modified integers.",
+                        "additionalProperties": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "Validation last_modified"
                         }
                     }
                 }
@@ -948,6 +1022,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are content UUIDs and values are content XMLs.",
                     "additionalProperties": {
                         "type": "string",
                         "description": "CPL XML data"
@@ -960,6 +1035,7 @@
             "properties": {
                 "data": {
                     "type": "object",
+                    "description": "Dictionary where keys are schedule UUIDs and values are last_modified integers.",
                     "additionalProperties": {
                         "type": "number",
                         "format": "float",

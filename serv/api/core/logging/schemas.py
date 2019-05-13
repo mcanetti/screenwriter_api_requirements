@@ -29,8 +29,10 @@ class LogFileGroupsResponseSchema(Schema):
         keys=fields.Date(),
         values=fields.Dict(
             keys=fields.UUID(),
-            values=fields.Nested(LogFileDetails)
-        )
+            values=fields.Nested(LogFileDetails),
+            description='Dictionary where keys are log file UUIDs and values are partial log file details.'  # noqa
+        ),
+        description='Dictionary where keys are Dates and values are dictionaries.'  # noqa
     )
 
 
@@ -61,10 +63,10 @@ class LogFileRawDetails(Schema):
     uuid = fields.UUID(description='Primary identifier of a log file.')
     created = fields.Integer()
     dnqualifier = fields.String(
-        description="Dnqualifier of the screen server."
+        description='Dnqualifier of the screen server.'
     )
     error_message = fields.String(
-        description="Error occured in collection or parsing phase."
+        description='Error occured in collection or parsing phase.'
     )
     signed = fields.Boolean()
     screen_identifier = fields.String(description='Screen identifier e.g. S01')
@@ -86,5 +88,6 @@ class LogFileRawDetails(Schema):
 class LogFileRawResponseSchema(Schema):
     data = fields.Dict(
         keys=fields.UUID(description='Primary Identifier of the log file.'),
-        values=fields.Nested(LogFileRawDetails)
+        values=fields.Nested(LogFileRawDetails),
+        description='Dictionary where keys are log file UUIDs and values are log files details.'  # noqa
     )
